@@ -95,3 +95,73 @@ export const updatePlace = async (updateData: PlaceUpdateRequest): Promise<{ ok:
 
   return response.json();
 };
+
+// ========== TAGS API ==========
+
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  is_active: boolean;
+}
+
+export const getAllTags = async (): Promise<Tag[]> => {
+  const response = await authFetch(`${API_BASE_URL}/tags/list`);
+
+  if (!response.ok) {
+    throw new Error('Error al obtener la lista de tags');
+  }
+
+  const result = await response.json();
+  if (result.ok && Array.isArray(result.data)) {
+    return result.data;
+  }
+  return [];
+};
+
+export const getTagsByPlace = async (slug: string): Promise<Tag[]> => {
+  const response = await authFetch(`${API_BASE_URL}/tags/by-place?slug=${encodeURIComponent(slug)}`);
+
+  if (!response.ok) {
+    throw new Error('Error al obtener los tags del restaurante');
+  }
+
+  const result = await response.json();
+  if (result.ok && Array.isArray(result.data)) {
+    return result.data;
+  }
+  return [];
+};
+
+export const createTag = async (tagData: { name: string; slug: string; description?: string }): Promise<Tag> => {
+  const response = await authFetch(`${API_BASE_URL}/tags/create`, {
+    method: 'POST',
+    body: JSON.stringify(tagData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el tag');
+  }
+
+  const result = await response.json();
+  if (result.ok && result.data) {
+    return result.data;
+  }
+  throw new Error('Error al crear el tag');
+};
+
+export const replacePlaceTags = async (slug: string, tagIds: string[]): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/tags/replace`, {
+    method: 'POST',
+    body: JSON.stringify({ slug, tag_ids: tagIds }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al reemplazar tags');
+  }
+
+  return response.json();
+};

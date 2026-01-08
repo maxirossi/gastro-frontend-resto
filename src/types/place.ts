@@ -20,6 +20,17 @@ export interface PlaceMedia {
   sort_order?: number;
 }
 
+export interface PlaceTag {
+  tag_id: string;
+  tags?: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string;
+    is_active: boolean;
+  };
+}
+
 export interface Place {
   id: string;
   slug: string;
@@ -31,6 +42,7 @@ export interface Place {
   place_contact?: PlaceContact | PlaceContact[];
   place_capacity?: PlaceCapacity | PlaceCapacity[];
   place_media?: PlaceMedia[];
+  place_tags?: PlaceTag[];
 }
 
 export interface PlaceResponse {
@@ -56,5 +68,6 @@ export interface PlaceUpdateRequest {
   };
   media_urls?: string[];
   replace_media?: boolean;
+  tag_ids?: string[];
 }
 

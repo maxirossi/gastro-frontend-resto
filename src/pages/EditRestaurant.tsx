@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
-import { getPlaceBySlug, updatePlace } from '../services/api';
+import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, type Tag } from '../services/api';
 import type { Place, PlaceLocation, PlaceContact, PlaceCapacity } from '../types/place';
 import './EditRestaurant.css';
 
@@ -26,6 +26,29 @@ function EditRestaurant() {
     availability: true,
     available_count: 0,
   });
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [newTagInput, setNewTagInput] = useState('');
+  const [showTagInput, setShowTagInput] = useState(false);
+  const [creatingTag, setCreatingTag] = useState(false);
+
+  // Mantener selectedTags sincronizado con selectedTagIds
+  useEffect(() => {
+    if (selectedTagIds.length === 0) {
+      setSelectedTags([]);
+      return;
+    }
+    
+    const tags = availableTags.filter(tag => selectedTagIds.includes(tag.id));
+    
+    // Eliminar duplicados por ID
+    const uniqueTags = tags.filter((tag, index, self) => 
+      index === self.findIndex(t => t.id === tag.id)
+    );
+    
+    setSelectedTags(uniqueTags);
+  }, [selectedTagIds, availableTags]);
 
   useEffect(() => {
     if (!restaurantData) {
@@ -43,7 +66,143 @@ function EditRestaurant() {
     }
 
     loadPlace();
+    loadTags();
   }, []);
+
+  const loadTags = async () => {
+    try {
+      const tags = await getAllTags();
+      const activeTags = tags.filter(t => t.is_active);
+      
+      // Preservar los tags que ya están en availableTags (pueden ser tags del restaurante)
+      setAvailableTags(prev => {
+        const existingTagIds = new Set(prev.map(t => t.id));
+        const newTags = activeTags.filter(t => !existingTagIds.has(t.id));
+        return [...prev, ...newTags];
+      });
+    } catch (err) {
+      console.error('Error loading tags:', err);
+    }
+  };
+  
+  // Asegurar que los tags del restaurante estén en availableTags
+  useEffect(() => {
+    if (selectedTags.length > 0 && availableTags.length > 0) {
+      const missingTags = selectedTags.filter(
+        selectedTag => !availableTags.some(availableTag => availableTag.id === selectedTag.id)
+      );
+      if (missingTags.length > 0) {
+        console.log('Adding missing tags to availableTags:', missingTags);
+        setAvailableTags(prev => {
+          const newTags = [...prev];
+          missingTags.forEach(tag => {
+            if (!newTags.some(t => t.id === tag.id)) {
+              newTags.push(tag);
+            }
+          });
+          return newTags;
+        });
+      }
+    }
+  }, [selectedTags, availableTags]);
+
+  const handleTagToggle = (tagId: string) => {
+    setSelectedTagIds(prev => {
+      if (prev.includes(tagId)) {
+        // Remover el tag
+        return prev.filter(id => id !== tagId);
+      } else {
+        // Agregar el tag solo si no está ya seleccionado
+        if (prev.includes(tagId)) {
+          return prev;
+        }
+        return [...prev, tagId];
+      }
+    });
+    setHasChanges(true);
+    setSuccess(false);
+  };
+
+  const handleRemoveTag = (tagId: string) => {
+    setSelectedTagIds(prev => prev.filter(id => id !== tagId));
+    setHasChanges(true);
+    setSuccess(false);
+  };
+
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  const handleCreateTag = async () => {
+    if (!newTagInput.trim()) return;
+
+    const tagName = newTagInput.trim();
+    const tagSlug = generateSlug(tagName);
+
+    // Verificar si el tag ya existe
+    const existingTag = availableTags.find(t => 
+      t.slug === tagSlug || t.name.toLowerCase() === tagName.toLowerCase()
+    );
+
+    if (existingTag) {
+      // Si existe, solo seleccionarlo
+      if (!selectedTagIds.includes(existingTag.id)) {
+        handleTagToggle(existingTag.id);
+      }
+      setNewTagInput('');
+      setShowTagInput(false);
+      return;
+    }
+
+    try {
+      setCreatingTag(true);
+      const newTag = await createTag({
+        name: tagName,
+        slug: tagSlug,
+      });
+
+      // Agregar a la lista de tags disponibles solo si no existe
+      setAvailableTags(prev => {
+        if (prev.some(t => t.id === newTag.id)) {
+          return prev;
+        }
+        return [...prev, newTag];
+      });
+      
+      // Seleccionar el nuevo tag solo si no está ya seleccionado
+      setSelectedTagIds(prev => {
+        if (prev.includes(newTag.id)) {
+          return prev;
+        }
+        return [...prev, newTag.id];
+      });
+      // selectedTags se actualizará automáticamente por el useEffect
+      
+      setNewTagInput('');
+      setShowTagInput(false);
+      setHasChanges(true);
+      setSuccess(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al crear el tag');
+    } finally {
+      setCreatingTag(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCreateTag();
+    } else if (e.key === 'Escape') {
+      setShowTagInput(false);
+      setNewTagInput('');
+    }
+  };
 
   const loadPlace = async () => {
     try {
@@ -78,6 +237,47 @@ function EditRestaurant() {
           availability: capacity?.availability === true || capacity?.availability === 'true' || capacity?.availability === 'AVAILABLE' || capacity?.availability === 'available',
           available_count: capacity?.available_count || 0,
         });
+
+        // Cargar tags del restaurante
+        const placeTags = placeData.place_tags || [];
+        console.log('Place tags raw:', placeTags);
+        
+        const tags = placeTags
+          .map(pt => {
+            // Manejar diferentes estructuras posibles
+            if (pt.tags) {
+              return pt.tags;
+            }
+            // Si pt es directamente un tag (caso edge)
+            if (pt.id && pt.name) {
+              return pt;
+            }
+            return null;
+          })
+          .filter((tag): tag is Tag => tag !== null && tag !== undefined);
+        
+        console.log('Processed tags:', tags);
+        
+        // Eliminar duplicados por ID
+        const uniqueTags = tags.filter((tag, index, self) => 
+          index === self.findIndex(t => t.id === tag.id)
+        );
+        
+        // Agregar los tags del restaurante a availableTags si no están presentes
+        setAvailableTags(prev => {
+          const newTags = [...prev];
+          uniqueTags.forEach(tag => {
+            if (!newTags.some(t => t.id === tag.id)) {
+              newTags.push(tag);
+            }
+          });
+          return newTags;
+        });
+        
+        const tagIds = uniqueTags.map(tag => tag.id);
+        console.log('Selected tag IDs:', tagIds);
+        setSelectedTagIds(tagIds);
+        // selectedTags se actualizará automáticamente por el useEffect
       } else {
         setError(response.error || 'Error al cargar los datos del restaurante');
       }
@@ -147,9 +347,18 @@ function EditRestaurant() {
         slug: restaurantData.slug,
         patch,
         replace_media: false,
+        tag_ids: selectedTagIds,
       });
 
       if (result.ok) {
+        // Actualizar tags por separado
+        try {
+          await replacePlaceTags(restaurantData.slug, selectedTagIds);
+        } catch (tagError) {
+          console.error('Error updating tags:', tagError);
+          // No bloqueamos la actualización si falla la asignación de tags
+        }
+
         setSuccess(true);
         setHasChanges(false);
         setTimeout(() => {
@@ -301,6 +510,102 @@ function EditRestaurant() {
               onChange={handleChange}
               placeholder="Calle y número"
             />
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h2>Tags</h2>
+          
+          <div className="form-group">
+            <label>Selecciona los tags que describen tu restaurante</label>
+            
+            {/* Tags seleccionados */}
+            {selectedTags.length > 0 && (
+              <div className="selected-tags">
+                {selectedTags.map(tag => (
+                  <span key={tag.id} className="selected-tag">
+                    {tag.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag.id)}
+                      className="tag-remove-btn"
+                      aria-label={`Eliminar ${tag.name}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Input para crear nuevo tag */}
+            {showTagInput ? (
+              <div className="new-tag-input-wrapper">
+                <input
+                  type="text"
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Escribe un nuevo tag y presiona Enter"
+                  className="new-tag-input"
+                  autoFocus
+                  disabled={creatingTag}
+                />
+                <div className="new-tag-actions">
+                  <button
+                    type="button"
+                    onClick={handleCreateTag}
+                    className="btn-tag-add"
+                    disabled={!newTagInput.trim() || creatingTag}
+                  >
+                    {creatingTag ? 'Creando...' : 'Agregar'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTagInput(false);
+                      setNewTagInput('');
+                    }}
+                    className="btn-tag-cancel"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowTagInput(true)}
+                className="btn-add-tag"
+              >
+                + Agregar nuevo tag
+              </button>
+            )}
+
+            {/* Lista de tags disponibles */}
+            {availableTags.length > 0 && (
+              <div className="tags-selector">
+                <p className="tags-label">Tags disponibles (creados por nosotros y otros restaurantes):</p>
+                <div className="tags-list">
+                  {availableTags.map(tag => {
+                    const isSelected = selectedTagIds.includes(tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => handleTagToggle(tag.id)}
+                        className={`tag-chip ${isSelected ? 'tag-chip-selected' : ''}`}
+                      >
+                        {isSelected && <span className="tag-checkmark">✓</span>}
+                        {tag.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            <small>Los tags ayudan a los clientes a encontrar tu restaurante</small>
           </div>
         </section>
 
