@@ -11,7 +11,7 @@ export interface PlaceContact {
 }
 
 export interface PlaceCapacity {
-  availability?: boolean;
+  availability?: boolean | string;
   available_count?: number;
 }
 

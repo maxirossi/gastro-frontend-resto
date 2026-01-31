@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
 import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, type Tag } from '../services/api';
-import type { Place, PlaceLocation, PlaceContact, PlaceCapacity } from '../types/place';
+import type { Place } from '../types/place';
 import './EditRestaurant.css';
 
 function EditRestaurant() {
@@ -234,7 +234,7 @@ function EditRestaurant() {
           email: contact?.email || '',
           city: location?.city || '',
           address: location?.address || '',
-          availability: capacity?.availability === true || capacity?.availability === 'true' || capacity?.availability === 'AVAILABLE' || capacity?.availability === 'available',
+          availability: capacity?.availability === true || (typeof capacity?.availability === 'string' && (capacity.availability === 'true' || capacity.availability === 'AVAILABLE' || capacity.availability === 'available')),
           available_count: capacity?.available_count || 0,
         });
 
@@ -247,10 +247,6 @@ function EditRestaurant() {
             // Manejar diferentes estructuras posibles
             if (pt.tags) {
               return pt.tags;
-            }
-            // Si pt es directamente un tag (caso edge)
-            if (pt.id && pt.name) {
-              return pt;
             }
             return null;
           })
