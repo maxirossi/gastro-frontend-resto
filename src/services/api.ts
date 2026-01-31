@@ -1,7 +1,6 @@
 import { getRestaurantToken } from '../utils/auth';
 import type { PlaceResponse, PlaceUpdateRequest } from '../types/place';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { API_BASE_URL } from '../lib/api';
 
 export interface RestaurantLoginResponse {
   ok: boolean;
