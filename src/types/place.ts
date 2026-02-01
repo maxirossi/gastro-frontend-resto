@@ -38,6 +38,7 @@ export interface Place {
   description?: string;
   category_key?: string;
   is_published?: boolean;
+  logo_url?: string;
   place_location?: PlaceLocation | PlaceLocation[];
   place_contact?: PlaceContact | PlaceContact[];
   place_capacity?: PlaceCapacity | PlaceCapacity[];

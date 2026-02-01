@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
-import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, type Tag } from '../services/api';
+import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, uploadLogo, deleteLogo, type Tag } from '../services/api';
 import type { Place } from '../types/place';
 import './EditRestaurant.css';
 
@@ -32,6 +32,9 @@ function EditRestaurant() {
   const [newTagInput, setNewTagInput] = useState('');
   const [showTagInput, setShowTagInput] = useState(false);
   const [creatingTag, setCreatingTag] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [deletingLogo, setDeletingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Mantener selectedTags sincronizado con selectedTagIds
   useEffect(() => {
@@ -284,6 +287,79 @@ function EditRestaurant() {
     }
   };
 
+  const handleLogoUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !place) return;
+
+    // Validar tipo de archivo
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Tipo de archivo no permitido. Solo se permiten imágenes (PNG, JPEG, WEBP, SVG)');
+      return;
+    }
+
+    // Validar tamaño (máximo 2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      setError('El archivo es demasiado grande. Máximo 2MB');
+      return;
+    }
+
+    try {
+      setUploadingLogo(true);
+      setError('');
+      const result = await uploadLogo(place.id, file);
+      
+      if (result.ok && result.logo_url) {
+        // Actualizar el place con el nuevo logo_url
+        setPlace(prev => prev ? { ...prev, logo_url: result.logo_url } : null);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Error al subir el logo');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al subir el logo');
+    } finally {
+      setUploadingLogo(false);
+      // Limpiar el input para permitir subir el mismo archivo de nuevo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleLogoDelete = async () => {
+    if (!place || !place.logo_url) return;
+
+    if (!confirm('¿Estás seguro de que deseas eliminar el logo?')) {
+      return;
+    }
+
+    try {
+      setDeletingLogo(true);
+      setError('');
+      const result = await deleteLogo(place.id);
+      
+      if (result.ok) {
+        // Actualizar el place eliminando el logo_url
+        setPlace(prev => prev ? { ...prev, logo_url: undefined } : null);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Error al eliminar el logo');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar el logo');
+    } finally {
+      setDeletingLogo(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
@@ -450,6 +526,65 @@ function EditRestaurant() {
               <span>Restaurante publicado</span>
             </label>
             <small>Si está publicado, aparecerá en el sitio público</small>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h2>Logo del Restaurante</h2>
+          
+          <div className="form-group">
+            <label>Logo actual</label>
+            {place.logo_url ? (
+              <div className="logo-preview-container">
+                <img src={place.logo_url} alt="Logo del restaurante" className="logo-preview" />
+                <div className="logo-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleLogoUploadClick}
+                    disabled={uploadingLogo}
+                  >
+                    {uploadingLogo ? 'Subiendo...' : 'Cambiar logo'}
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                    style={{ display: 'none' }}
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  <button
+                    type="button"
+                    className="btn-danger"
+                    onClick={handleLogoDelete}
+                    disabled={deletingLogo}
+                  >
+                    {deletingLogo ? 'Eliminando...' : 'Eliminar logo'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="logo-upload-container">
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleLogoUploadClick}
+                  disabled={uploadingLogo}
+                >
+                  {uploadingLogo ? 'Subiendo...' : 'Subir logo'}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                  style={{ display: 'none' }}
+                  onChange={handleLogoUpload}
+                  disabled={uploadingLogo}
+                />
+                <small>Formatos permitidos: PNG, JPEG, WEBP, SVG. Tamaño máximo: 2MB</small>
+              </div>
+            )}
           </div>
         </section>
 

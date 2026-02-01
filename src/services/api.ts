@@ -164,3 +164,57 @@ export const replacePlaceTags = async (slug: string, tagIds: string[]): Promise<
 
   return response.json();
 };
+
+// ========== LOGO API ==========
+
+/**
+ * Helper para hacer fetch con autenticación y FormData (para uploads)
+ */
+const authFormDataFetch = async (url: string, formData: FormData): Promise<Response> => {
+  const token = getRestaurantToken();
+  const headers = new Headers();
+  
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  // No establecer Content-Type para FormData, el navegador lo hará automáticamente con el boundary
+
+  return fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+};
+
+/**
+ * Sube un logo para un restaurante
+ */
+export const uploadLogo = async (placeId: string, file: File): Promise<{ ok: boolean; logo_url?: string; error?: string }> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await authFormDataFetch(`${API_BASE_URL}/places/logo-upload/${placeId}`, formData);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al subir el logo');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina el logo de un restaurante
+ */
+export const deleteLogo = async (placeId: string): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/logo/${placeId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el logo');
+  }
+
+  return response.json();
+};
