@@ -53,6 +53,14 @@ function Layout({ children }: LayoutProps) {
                 Editar datos
               </button>
             </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/menu') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/menu')}
+              >
+                Editar menú
+              </button>
+            </li>
           </ul>
         </nav>
         <div className="sidebar-footer">

@@ -93,12 +93,20 @@ function Dashboard() {
     <div className="dashboard">
       <div className="dashboard-header">
         <h1>{place.name}</h1>
-        <button 
-          className="btn-edit"
-          onClick={() => navigate('/resto/edit')}
-        >
-          Editar datos
-        </button>
+        <div className="dashboard-actions">
+          <button 
+            className="btn-edit"
+            onClick={() => navigate('/resto/menu')}
+          >
+            Editar menú
+          </button>
+          <button 
+            className="btn-edit"
+            onClick={() => navigate('/resto/edit')}
+          >
+            Editar datos
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-grid">

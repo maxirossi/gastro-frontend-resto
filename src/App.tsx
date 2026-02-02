@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import EditRestaurant from './pages/EditRestaurant';
+import EditMenu from './pages/EditMenu';
 import './App.css';
 
 function App() {
@@ -27,6 +28,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <EditRestaurant />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/menu"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EditMenu />
               </Layout>
             </ProtectedRoute>
           }

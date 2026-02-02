@@ -723,9 +723,14 @@ function EditRestaurant() {
           
           <div className="form-group">
             <p>Administra el menú de tu restaurante: categorías, platos, precios y más.</p>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              La funcionalidad de administración de menú estará disponible próximamente.
-            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/resto/menu')}
+              className="btn btn-primary"
+              style={{ marginTop: '1rem' }}
+            >
+              Ir a editar menú
+            </button>
           </div>
         </section>
 

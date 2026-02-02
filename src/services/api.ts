@@ -303,3 +303,116 @@ export const getMenu = async (slug: string): Promise<{ ok: boolean; data?: any; 
 
   return response.json();
 };
+
+// ========== MENU CATEGORIES API ==========
+
+export const createMenuCategory = async (
+  slug: string,
+  name: string,
+  sortOrder?: number
+): Promise<{ ok: boolean; data?: any; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/category/create`, {
+    method: 'POST',
+    body: JSON.stringify({ slug, name, sort_order: sortOrder }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear la categoría');
+  }
+
+  return response.json();
+};
+
+export const updateMenuCategory = async (
+  id: string,
+  patch: { name?: string; sort_order?: number; is_active?: boolean }
+): Promise<{ ok: boolean; data?: any; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/category/update`, {
+    method: 'POST',
+    body: JSON.stringify({ id, ...patch }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar la categoría');
+  }
+
+  return response.json();
+};
+
+export const deleteMenuCategory = async (id: string): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/category/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar la categoría');
+  }
+
+  return response.json();
+};
+
+// ========== MENU ITEMS API ==========
+
+export const createMenuItem = async (data: {
+  slug: string;
+  category_id: string;
+  title: string;
+  description?: string;
+  price_amount: number;
+  currency?: string;
+  sort_order?: number;
+}): Promise<{ ok: boolean; data?: any; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/item/create`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el plato');
+  }
+
+  return response.json();
+};
+
+export const updateMenuItem = async (
+  id: string,
+  patch: {
+    title?: string;
+    description?: string;
+    price_amount?: number;
+    currency?: string;
+    category_id?: string;
+    is_available?: boolean;
+    is_featured?: boolean;
+    sort_order?: number;
+  }
+): Promise<{ ok: boolean; data?: any; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/item/update`, {
+    method: 'POST',
+    body: JSON.stringify({ id, ...patch }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el plato');
+  }
+
+  return response.json();
+};
+
+export const deleteMenuItem = async (id: string): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/item/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el plato');
+  }
+
+  return response.json();
+};

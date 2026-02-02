@@ -18,6 +18,12 @@
   font-weight: 700;
 }
 
+.dashboard-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 .btn-edit {
   padding: 0.75rem 1.5rem;
   background: #6366f1;
@@ -162,6 +168,11 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .dashboard-actions {
+    width: 100%;
+    flex-direction: column;
   }
 
   .btn-edit {
