@@ -49,7 +49,6 @@ function EditMenu() {
   // Estados para items
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [itemForm, setItemForm] = useState({
     title: '',
     description: '',
@@ -174,7 +173,6 @@ function EditMenu() {
       setShowItemForm(false);
       setEditingItem(null);
       setItemForm({ title: '', description: '', price_amount: '', category_id: '' });
-      setSelectedCategoryId('');
       loadMenu();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar el plato');
@@ -189,7 +187,6 @@ function EditMenu() {
       price_amount: item.price_amount.toString(),
       category_id: item.category_id,
     });
-    setSelectedCategoryId(item.category_id);
     setShowItemForm(true);
   };
 
@@ -211,7 +208,6 @@ function EditMenu() {
   const handleNewItem = (categoryId: string) => {
     setEditingItem(null);
     setItemForm({ title: '', description: '', price_amount: '', category_id: categoryId });
-    setSelectedCategoryId(categoryId);
     setShowItemForm(true);
   };
 
@@ -334,7 +330,6 @@ function EditMenu() {
                   value={itemForm.category_id}
                   onChange={(e) => {
                     setItemForm({ ...itemForm, category_id: e.target.value });
-                    setSelectedCategoryId(e.target.value);
                   }}
                   required
                 >
@@ -388,7 +383,6 @@ function EditMenu() {
                     setShowItemForm(false);
                     setEditingItem(null);
                     setItemForm({ title: '', description: '', price_amount: '', category_id: '' });
-                    setSelectedCategoryId('');
                   }}
                 >
                   Cancelar
