@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
-import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, uploadLogo, deleteLogo, type Tag } from '../services/api';
+import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, uploadLogo, deleteLogo, uploadPhoto, deletePhoto, getMenu, type Tag } from '../services/api';
 import type { Place } from '../types/place';
 import './EditRestaurant.css';
 
@@ -34,7 +34,10 @@ function EditRestaurant() {
   const [creatingTag, setCreatingTag] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [deletingLogo, setDeletingLogo] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [deletingPhotoUrl, setDeletingPhotoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   // Mantener selectedTags sincronizado con selectedTagIds
   useEffect(() => {
@@ -215,6 +218,12 @@ function EditRestaurant() {
       
       if (response.ok && response.data) {
         const placeData = response.data;
+        console.log('[EditRestaurant] Place data loaded:', {
+          slug: placeData.slug,
+          logo_url: placeData.logo_url,
+          place_media_count: placeData.place_media?.length || 0,
+          place_media: placeData.place_media
+        });
         setPlace(placeData);
 
         const location = Array.isArray(placeData.place_location) 
@@ -357,6 +366,79 @@ function EditRestaurant() {
       setError(err instanceof Error ? err.message : 'Error al eliminar el logo');
     } finally {
       setDeletingLogo(false);
+    }
+  };
+
+  const handlePhotoUploadClick = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !place) return;
+
+    // Validar tipo de archivo
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setError('Tipo de archivo no permitido. Solo se permiten imágenes (PNG, JPEG, WEBP)');
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB para fotos)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setError('El archivo es demasiado grande. Máximo 5MB');
+      return;
+    }
+
+    try {
+      setUploadingPhoto(true);
+      setError('');
+      const result = await uploadPhoto(place.slug, file, false);
+      
+      if (result.ok && result.url) {
+        // Recargar el lugar para obtener las fotos actualizadas
+        await loadPlace();
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Error al subir la foto');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al subir la foto');
+    } finally {
+      setUploadingPhoto(false);
+      // Limpiar el input
+      if (photoInputRef.current) {
+        photoInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handlePhotoDelete = async (photoUrl: string) => {
+    if (!place) return;
+
+    if (!confirm('¿Estás seguro de que deseas eliminar esta foto?')) {
+      return;
+    }
+
+    try {
+      setDeletingPhotoUrl(photoUrl);
+      setError('');
+      const result = await deletePhoto(place.slug, photoUrl);
+      
+      if (result.ok) {
+        // Recargar el lugar para obtener las fotos actualizadas
+        await loadPlace();
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Error al eliminar la foto');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la foto');
+    } finally {
+      setDeletingPhotoUrl(null);
     }
   };
 
@@ -585,6 +667,65 @@ function EditRestaurant() {
                 <small>Formatos permitidos: PNG, JPEG, WEBP, SVG. Tamaño máximo: 2MB</small>
               </div>
             )}
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h2>Fotos del Restaurante</h2>
+          
+          <div className="form-group">
+            <label>Fotos actuales</label>
+            {place.place_media && place.place_media.length > 0 ? (
+              <div className="photos-grid">
+                {place.place_media.map((media) => (
+                  <div key={media.id || media.url} className="photo-item">
+                    <img src={media.url} alt={`Foto`} className="photo-preview" />
+                    <button
+                      type="button"
+                      className="photo-delete-btn"
+                      onClick={() => handlePhotoDelete(media.url)}
+                      disabled={deletingPhotoUrl === media.url}
+                      title="Eliminar foto"
+                    >
+                      {deletingPhotoUrl === media.url ? 'Eliminando...' : '×'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="no-photos">No hay fotos cargadas</p>
+            )}
+            
+            <div className="photo-upload-container">
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handlePhotoUploadClick}
+                disabled={uploadingPhoto}
+              >
+                {uploadingPhoto ? 'Subiendo...' : '+ Agregar foto'}
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                style={{ display: 'none' }}
+                onChange={handlePhotoUpload}
+                disabled={uploadingPhoto}
+              />
+              <small>Formatos permitidos: PNG, JPEG, WEBP. Tamaño máximo: 5MB. Máximo 5 fotos por restaurante.</small>
+            </div>
+          </div>
+        </section>
+
+        <section className="form-section">
+          <h2>Menú</h2>
+          
+          <div className="form-group">
+            <p>Administra el menú de tu restaurante: categorías, platos, precios y más.</p>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+              La funcionalidad de administración de menú estará disponible próximamente.
+            </p>
           </div>
         </section>
 

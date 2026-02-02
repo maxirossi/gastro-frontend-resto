@@ -218,3 +218,88 @@ export const deleteLogo = async (placeId: string): Promise<{ ok: boolean; error?
 
   return response.json();
 };
+
+// ========== MEDIA API ==========
+
+/**
+ * Convierte un File a base64
+ */
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remover el prefijo data:image/...;base64,
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+/**
+ * Sube una foto para un restaurante
+ */
+export const uploadPhoto = async (
+  placeSlug: string,
+  file: File,
+  upsert?: boolean
+): Promise<{ ok: boolean; url?: string; publicUrl?: string; path?: string; error?: string }> => {
+  try {
+    const base64 = await fileToBase64(file);
+    
+    const response = await authFetch(`${API_BASE_URL}/places/media-upload`, {
+      method: 'POST',
+      body: JSON.stringify({
+        place_slug: placeSlug,
+        content_type: file.type,
+        base64,
+        upsert: upsert ?? false,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+      throw new Error(error.error || 'Error al subir la foto');
+    }
+
+    return response.json();
+  } catch (err) {
+    throw err instanceof Error ? err : new Error('Error al subir la foto');
+  }
+};
+
+/**
+ * Elimina una foto de un restaurante
+ */
+export const deletePhoto = async (
+  placeSlug: string,
+  photoUrl: string
+): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/media/${placeSlug}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ photo_url: photoUrl }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar la foto');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene el menú de un restaurante
+ */
+export const getMenu = async (slug: string): Promise<{ ok: boolean; data?: any; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/menu/${slug}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el menú');
+  }
+
+  return response.json();
+};

@@ -16,7 +16,9 @@ export interface PlaceCapacity {
 }
 
 export interface PlaceMedia {
+  id: string;
   url: string;
+  type?: string;
   sort_order?: number;
 }
 
