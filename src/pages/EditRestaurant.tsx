@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
-import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, uploadLogo, deleteLogo, uploadPhoto, deletePhoto, getMenu, type Tag } from '../services/api';
+import { getPlaceBySlug, updatePlace, getAllTags, replacePlaceTags, createTag, uploadLogo, deleteLogo, uploadPhoto, deletePhoto, type Tag } from '../services/api';
 import type { Place } from '../types/place';
 import './EditRestaurant.css';
 
