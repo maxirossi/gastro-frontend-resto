@@ -1,5 +1,6 @@
 import { getRestaurantToken } from '../utils/auth';
 import type { PlaceResponse, PlaceUpdateRequest } from '../types/place';
+import type { PaymentLink, PaymentLinkCreateRequest, PaymentLinkUpdateRequest } from '../types/paymentLink';
 import { API_BASE_URL } from '../lib/api';
 
 export interface RestaurantLoginResponse {
@@ -412,6 +413,77 @@ export const deleteMenuItem = async (id: string): Promise<{ ok: boolean; error?:
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
     throw new Error(error.error || 'Error al eliminar el plato');
+  }
+
+  return response.json();
+};
+
+// ========== PAYMENT LINKS API ==========
+
+/**
+ * Obtiene todos los links de pago de un restaurante
+ */
+export const getPaymentLinks = async (slug: string): Promise<{ ok: boolean; data?: PaymentLink[]; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/payment-links?slug=${encodeURIComponent(slug)}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener los links de pago');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea un nuevo link de pago
+ */
+export const createPaymentLink = async (
+  slug: string,
+  data: PaymentLinkCreateRequest
+): Promise<{ ok: boolean; data?: PaymentLink; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/payment-links`, {
+    method: 'POST',
+    body: JSON.stringify({ slug, ...data }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el link de pago');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza un link de pago
+ */
+export const updatePaymentLink = async (
+  data: PaymentLinkUpdateRequest
+): Promise<{ ok: boolean; data?: PaymentLink; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/payment-links`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el link de pago');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina un link de pago
+ */
+export const deletePaymentLink = async (id: string): Promise<{ ok: boolean; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/places/payment-links/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el link de pago');
   }
 
   return response.json();

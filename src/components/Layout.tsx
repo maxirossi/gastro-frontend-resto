@@ -61,6 +61,22 @@ function Layout({ children }: LayoutProps) {
                 Editar menú
               </button>
             </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/qr') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/qr')}
+              >
+                Ver QRs
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/payment-link') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/payment-link')}
+              >
+                Link de pago
+              </button>
+            </li>
           </ul>
         </nav>
         <div className="sidebar-footer">

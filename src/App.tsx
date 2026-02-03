@@ -5,6 +5,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import EditRestaurant from './pages/EditRestaurant';
 import EditMenu from './pages/EditMenu';
+import QRCodes from './pages/QRCodes';
+import PaymentLink from './pages/PaymentLink';
 import './App.css';
 
 function App() {
@@ -38,6 +40,26 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <EditMenu />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/qr"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <QRCodes />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/payment-link"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PaymentLink />
               </Layout>
             </ProtectedRoute>
           }

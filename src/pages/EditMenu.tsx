@@ -97,10 +97,10 @@ function EditMenu() {
           name: categoryForm.name,
           sort_order: categoryForm.sort_order,
         });
-        setSuccess('Categoría actualizada correctamente');
+        setSuccess('✅ Categoría actualizada correctamente');
       } else {
         await createMenuCategory(restaurantData!.slug!, categoryForm.name, categoryForm.sort_order);
-        setSuccess('Categoría creada correctamente');
+        setSuccess('✅ Categoría creada correctamente');
       }
       
       setShowCategoryForm(false);
@@ -129,7 +129,7 @@ function EditMenu() {
     try {
       setError('');
       await deleteMenuCategory(id);
-      setSuccess('Categoría eliminada correctamente');
+      setSuccess('✅ Categoría eliminada correctamente');
       loadMenu();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar la categoría');
@@ -157,7 +157,7 @@ function EditMenu() {
           price_amount: priceAmount,
           category_id: itemForm.category_id,
         });
-        setSuccess('Plato actualizado correctamente');
+        setSuccess('✅ Plato actualizado correctamente');
       } else {
         await createMenuItem({
           slug: restaurantData!.slug!,
@@ -167,7 +167,7 @@ function EditMenu() {
           price_amount: priceAmount,
           currency: 'ARS',
         });
-        setSuccess('Plato creado correctamente');
+        setSuccess('✅ Plato agregado al menú');
       }
       
       setShowItemForm(false);
@@ -198,7 +198,7 @@ function EditMenu() {
     try {
       setError('');
       await deleteMenuItem(id);
-      setSuccess('Plato eliminado correctamente');
+      setSuccess('✅ Plato eliminado correctamente');
       loadMenu();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al eliminar el plato');
@@ -372,7 +372,7 @@ function EditMenu() {
                   required
                   min="0"
                   step="0.01"
-                  placeholder="0.00"
+                  placeholder="Ej: 8500"
                 />
               </div>
               <div className="form-actions">

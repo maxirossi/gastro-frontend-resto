@@ -46,6 +46,9 @@ export interface Place {
   place_capacity?: PlaceCapacity | PlaceCapacity[];
   place_media?: PlaceMedia[];
   place_tags?: PlaceTag[];
+  payment_link_enabled?: boolean;
+  payment_link_url?: string | null;
+  payment_link_label?: string | null;
 }
 
 export interface PlaceResponse {
@@ -68,6 +71,9 @@ export interface PlaceUpdateRequest {
     lng?: number | null;
     availability?: string | null;
     available_count?: number | null;
+    payment_link_enabled?: boolean;
+    payment_link_url?: string | null;
+    payment_link_label?: string | null;
   };
   media_urls?: string[];
   replace_media?: boolean;

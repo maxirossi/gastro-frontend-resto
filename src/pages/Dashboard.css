@@ -163,6 +163,249 @@
   color: #92400e;
 }
 
+/* Metrics Card Styles */
+.metrics-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.metrics-card h2 {
+  color: white;
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.metrics-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metric-icon {
+  font-size: 2rem;
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.metrics-note {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.metrics-note p {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Availability Styles */
+.availability-status {
+  margin-bottom: 0.5rem;
+}
+
+.availability-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.availability-badge.open {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.availability-badge.closed {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.availability-note {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+}
+
+.availability-note p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.btn-edit-small {
+  padding: 0.5rem 1rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit-small:hover {
+  background: #4f46e5;
+}
+
+/* QR Explanation Styles */
+.qr-explanation {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.qr-explanation p {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.qr-explanation p:first-child {
+  margin-top: 0;
+}
+
+.qr-explanation strong {
+  color: #333;
+  font-weight: 600;
+}
+
+/* QR Section Styles */
+.qr-card {
+  grid-column: 1 / -1;
+}
+
+.qr-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.qr-item {
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.qr-item h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.qr-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.qr-code-container {
+  flex-shrink: 0;
+}
+
+.qr-code {
+  width: 200px;
+  height: 200px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  padding: 0.5rem;
+}
+
+.qr-url-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.qr-url {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qr-url-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.qr-url-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-size: 0.875rem;
+  word-break: break-all;
+  transition: color 0.2s;
+}
+
+.qr-url-link:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.btn-copy {
+  padding: 0.5rem 1rem;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.btn-copy:hover {
+  background: #4f46e5;
+}
+
+.qr-no-menu {
+  padding: 1rem;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  color: #92400e;
+}
+
+.qr-no-menu p {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
@@ -181,6 +424,25 @@
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .qr-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .qr-code {
+    width: 150px;
+    height: 150px;
+  }
+
+  .qr-url-container {
+    width: 100%;
+    align-items: center;
+  }
+
+  .btn-copy {
+    width: 100%;
   }
 }
 

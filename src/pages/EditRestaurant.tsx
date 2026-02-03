@@ -25,6 +25,9 @@ function EditRestaurant() {
     address: '',
     availability: true,
     available_count: 0,
+    payment_link_enabled: false,
+    payment_link_url: '',
+    payment_link_label: '',
   });
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
@@ -248,6 +251,9 @@ function EditRestaurant() {
           address: location?.address || '',
           availability: capacity?.availability === true || (typeof capacity?.availability === 'string' && (capacity.availability === 'true' || capacity.availability === 'AVAILABLE' || capacity.availability === 'available')),
           available_count: capacity?.available_count || 0,
+          payment_link_enabled: placeData.payment_link_enabled ?? false,
+          payment_link_url: placeData.payment_link_url || '',
+          payment_link_label: placeData.payment_link_label || '',
         });
 
         // Cargar tags del restaurante
@@ -497,6 +503,10 @@ function EditRestaurant() {
       patch.availability = formData.availability ? 'AVAILABLE' : 'UNAVAILABLE';
       patch.available_count = formData.available_count || null;
 
+      patch.payment_link_enabled = formData.payment_link_enabled;
+      patch.payment_link_url = formData.payment_link_url || null;
+      patch.payment_link_label = formData.payment_link_label || null;
+
       const result = await updatePlace({
         slug: restaurantData.slug,
         patch,
@@ -595,6 +605,9 @@ function EditRestaurant() {
               rows={4}
               placeholder="Describe tu restaurante..."
             />
+            <small className="form-hint">
+              ✨ Una buena descripción ayuda a que más personas elijan tu restaurante.
+            </small>
           </div>
 
           <div className="form-group">
@@ -613,6 +626,9 @@ function EditRestaurant() {
 
         <section className="form-section">
           <h2>Logo del Restaurante</h2>
+          <p className="section-hint">
+            🖼️ Los restaurantes con logo se ven más profesionales y generan más confianza.
+          </p>
           
           <div className="form-group">
             <label>Logo actual</label>
@@ -693,7 +709,14 @@ function EditRestaurant() {
                 ))}
               </div>
             ) : (
-              <p className="no-photos">No hay fotos cargadas</p>
+              <div className="photos-empty-state">
+                <p className="photos-empty-message">
+                  📸 <strong>Los restaurantes con fotos reciben hasta 3x más visitas</strong>
+                </p>
+                <p className="photos-empty-subtitle">
+                  👉 Mostrá tu lugar, platos o ambiente.
+                </p>
+              </div>
             )}
             
             <div className="photo-upload-container">
@@ -703,7 +726,7 @@ function EditRestaurant() {
                 onClick={handlePhotoUploadClick}
                 disabled={uploadingPhoto}
               >
-                {uploadingPhoto ? 'Subiendo...' : '+ Agregar foto'}
+                {uploadingPhoto ? 'Subiendo...' : 'Agregar fotos'}
               </button>
               <input
                 ref={photoInputRef}
@@ -788,6 +811,68 @@ function EditRestaurant() {
               placeholder="Calle y número"
             />
           </div>
+        </section>
+
+        <section className="form-section">
+          <h2>Link de Pago (Mercado Pago)</h2>
+          <p className="section-hint">
+            💳 Permite que tus clientes paguen online mediante Mercado Pago. El link se genera manualmente en tu cuenta de Mercado Pago.
+          </p>
+
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="payment_link_enabled"
+                checked={formData.payment_link_enabled}
+                onChange={handleChange}
+              />
+              <span>Habilitar link de pago</span>
+            </label>
+            <small>Si está habilitado, se mostrará un botón de pago en tu página pública</small>
+          </div>
+
+          {formData.payment_link_enabled && (
+            <>
+              <div className="form-group">
+                <label htmlFor="payment_link_url">Link de pago de Mercado Pago</label>
+                <input
+                  type="url"
+                  id="payment_link_url"
+                  name="payment_link_url"
+                  value={formData.payment_link_url}
+                  onChange={handleChange}
+                  placeholder="https://mpago.la/..."
+                  required={formData.payment_link_enabled}
+                />
+                <small>
+                  Copia el link de pago desde tu cuenta de Mercado Pago. 
+                  <a 
+                    href="/resto/ayuda/link-de-pago" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ marginLeft: '0.5rem', color: '#2563eb' }}
+                  >
+                    ¿Cómo genero mi link de pago?
+                  </a>
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="payment_link_label">Etiqueta del link (opcional)</label>
+                <input
+                  type="text"
+                  id="payment_link_label"
+                  name="payment_link_label"
+                  value={formData.payment_link_label}
+                  onChange={handleChange}
+                  placeholder="Ej: Seña reserva, Pedido delivery, etc."
+                  maxLength={50}
+                />
+                <small>Texto descriptivo que aparecerá junto al botón de pago (máx. 50 caracteres)</small>
+              </div>
+            </>
+          )}
         </section>
 
         <section className="form-section">
