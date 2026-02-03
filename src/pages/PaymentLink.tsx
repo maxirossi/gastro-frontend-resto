@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getRestaurantData } from '../utils/auth';
 import { getPaymentLinks, createPaymentLink, updatePaymentLink, deletePaymentLink, getPlaceBySlug } from '../services/api';
-import type { PaymentLink, PaymentLinkCreateRequest, PaymentLinkUpdateRequest } from '../types/paymentLink';
+import type { PaymentLink as PaymentLinkType, PaymentLinkCreateRequest, PaymentLinkUpdateRequest } from '../types/paymentLink';
 import type { Place } from '../types/place';
 import './PaymentLink.css';
 
@@ -14,10 +14,10 @@ function PaymentLink() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [paymentLinks, setPaymentLinks] = useState<PaymentLink[]>([]);
+  const [paymentLinks, setPaymentLinks] = useState<PaymentLinkType[]>([]);
   const [place, setPlace] = useState<Place | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [editingLink, setEditingLink] = useState<PaymentLink | null>(null);
+  const [editingLink, setEditingLink] = useState<PaymentLinkType | null>(null);
 
   const [formData, setFormData] = useState<PaymentLinkCreateRequest>({
     label: '',
@@ -161,7 +161,7 @@ function PaymentLink() {
     }
   };
 
-  const handleEdit = (link: PaymentLink) => {
+  const handleEdit = (link: PaymentLinkType) => {
     setEditingLink(link);
     setFormData({
       label: link.label,
@@ -192,10 +192,10 @@ function PaymentLink() {
     const contact = Array.isArray(place.place_contact) 
       ? place.place_contact[0] 
       : place.place_contact;
-    return contact?.whatsapp_phone || place.whatsapp_phone || null;
+    return contact?.whatsapp_phone || null;
   };
 
-  const formatWhatsAppMessage = (link: PaymentLink): string => {
+  const formatWhatsAppMessage = (link: PaymentLinkType): string => {
     const restaurantName = place?.name || 'mi restaurante';
     let message = `Hola! Quiero reservar/consultar en *${restaurantName}*.\n\n`;
     
@@ -217,7 +217,7 @@ function PaymentLink() {
     return message;
   };
 
-  const getWhatsAppUrl = (link: PaymentLink): string | null => {
+  const getWhatsAppUrl = (link: PaymentLinkType): string | null => {
     const phone = getWhatsAppPhone();
     if (!phone) return null;
     
@@ -228,7 +228,7 @@ function PaymentLink() {
     return `https://wa.me/54${clean}?text=${encodedMessage}`;
   };
 
-  const handleCopyMessage = async (link: PaymentLink) => {
+  const handleCopyMessage = async (link: PaymentLinkType) => {
     const message = formatWhatsAppMessage(link);
     try {
       await navigator.clipboard.writeText(message);
