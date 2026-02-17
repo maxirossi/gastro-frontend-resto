@@ -43,9 +43,7 @@ function Shifts() {
   const loadStaffMembers = async () => {
     try {
       const result = await getRestaurantStaff({ isActive: true });
-      if (result.ok && result.data) {
-        setStaffMembers(result.data.items || []);
-      }
+      setStaffMembers(result.items || []);
     } catch (err) {
       console.error('Error loading staff members:', err);
     }

@@ -1,22 +1,8 @@
-export enum CashMovementType {
-  INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE',
-}
+export type CashMovementType = 'INCOME' | 'EXPENSE';
 
-export enum PaymentMethod {
-  CASH = 'CASH',
-  MERCADO_PAGO = 'MERCADO_PAGO',
-  DEBIT = 'DEBIT',
-  CREDIT = 'CREDIT',
-  TRANSFER = 'TRANSFER',
-  OTHER = 'OTHER',
-}
+export type PaymentMethod = 'CASH' | 'MERCADO_PAGO' | 'DEBIT' | 'CREDIT' | 'TRANSFER' | 'OTHER';
 
-export enum SummaryPeriod {
-  DAILY = 'daily',
-  WEEKLY = 'weekly',
-  MONTHLY = 'monthly',
-}
+export type SummaryPeriod = 'daily' | 'weekly' | 'monthly';
 
 export interface CashMovement {
   id: string;

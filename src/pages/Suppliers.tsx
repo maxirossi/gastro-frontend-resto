@@ -7,7 +7,7 @@ import {
   deactivateSupplier,
 } from '../services/api';
 import type { Supplier, SupplierQuery, SupplierStatus } from '../types/supplier';
-import { getWhatsAppUrl, normalizePhoneToWaMe } from '../utils/whatsapp';
+import { getWhatsAppUrl } from '../utils/whatsapp';
 import './Suppliers.css';
 
 function Suppliers() {

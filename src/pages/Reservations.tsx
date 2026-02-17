@@ -10,7 +10,6 @@ import {
 import type { Reservation, ReservationQuery, ReservationStatus } from '../types/reservation';
 import type { PaymentLink } from '../types/paymentLink';
 import { formatWhatsAppMessage, getWhatsAppUrl } from '../utils/whatsapp';
-import { updateReservation } from '../services/api';
 import './Reservations.css';
 
 function Reservations() {

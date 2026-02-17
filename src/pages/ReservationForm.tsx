@@ -8,7 +8,7 @@ import {
   linkPaymentToReservation,
   getPaymentLinks,
 } from '../services/api';
-import type { Reservation, CreateReservationRequest, UpdateReservationRequest, ReservationSource } from '../types/reservation';
+import type { CreateReservationRequest, UpdateReservationRequest, ReservationSource } from '../types/reservation';
 import type { PaymentLink } from '../types/paymentLink';
 import { formatWhatsAppMessage, getWhatsAppUrl } from '../utils/whatsapp';
 import './ReservationForm.css';

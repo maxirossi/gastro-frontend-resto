@@ -1,8 +1,4 @@
-export enum RestaurantNoteType {
-  OPERATIVE = 'OPERATIVE',
-  ISSUE = 'ISSUE',
-  IDEA = 'IDEA',
-}
+export type RestaurantNoteType = 'OPERATIVE' | 'ISSUE' | 'IDEA';
 
 export interface RestaurantNote {
   id: string;
