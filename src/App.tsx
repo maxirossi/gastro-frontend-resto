@@ -7,6 +7,13 @@ import EditRestaurant from './pages/EditRestaurant';
 import EditMenu from './pages/EditMenu';
 import QRCodes from './pages/QRCodes';
 import PaymentLink from './pages/PaymentLink';
+import CashMovements from './pages/CashMovements';
+import Notes from './pages/Notes';
+import Staff from './pages/Staff';
+import Reservations from './pages/Reservations';
+import ReservationForm from './pages/ReservationForm';
+import Shifts from './pages/Shifts';
+import Suppliers from './pages/Suppliers';
 import './App.css';
 
 function App() {
@@ -60,6 +67,86 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <PaymentLink />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/cash"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CashMovements />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/notes"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Notes />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/staff"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Staff />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/reservations"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Reservations />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/reservations/new"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ReservationForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/reservations/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ReservationForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/shifts"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Shifts />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resto/suppliers"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suppliers />
               </Layout>
             </ProtectedRoute>
           }

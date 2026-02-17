@@ -42,7 +42,8 @@ function Layout({ children }: LayoutProps) {
                 className={`nav-item ${isActive('/resto/dashboard') ? 'active' : ''}`}
                 onClick={() => navigate('/resto/dashboard')}
               >
-                Mi Restaurante
+                <span className="nav-icon">🏠</span>
+                <span>Mi Restaurante</span>
               </button>
             </li>
             <li>
@@ -50,7 +51,8 @@ function Layout({ children }: LayoutProps) {
                 className={`nav-item ${isActive('/resto/edit') ? 'active' : ''}`}
                 onClick={() => navigate('/resto/edit')}
               >
-                Editar datos
+                <span className="nav-icon">✏️</span>
+                <span>Editar datos</span>
               </button>
             </li>
             <li>
@@ -58,7 +60,8 @@ function Layout({ children }: LayoutProps) {
                 className={`nav-item ${isActive('/resto/menu') ? 'active' : ''}`}
                 onClick={() => navigate('/resto/menu')}
               >
-                Editar menú
+                <span className="nav-icon">📋</span>
+                <span>Editar menú</span>
               </button>
             </li>
             <li>
@@ -66,7 +69,8 @@ function Layout({ children }: LayoutProps) {
                 className={`nav-item ${isActive('/resto/qr') ? 'active' : ''}`}
                 onClick={() => navigate('/resto/qr')}
               >
-                Ver QRs
+                <span className="nav-icon">📱</span>
+                <span>Ver QRs</span>
               </button>
             </li>
             <li>
@@ -74,7 +78,62 @@ function Layout({ children }: LayoutProps) {
                 className={`nav-item ${isActive('/resto/payment-link') ? 'active' : ''}`}
                 onClick={() => navigate('/resto/payment-link')}
               >
-                Link de pago
+                <span className="nav-icon">💳</span>
+                <span>Link de pago</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/reservations') || isActive('/resto/reservations/new') || location.pathname.startsWith('/resto/reservations/') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/reservations')}
+              >
+                <span className="nav-icon">📅</span>
+                <span>Reservas</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/cash') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/cash')}
+              >
+                <span className="nav-icon">💰</span>
+                <span>Caja</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/suppliers') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/suppliers')}
+              >
+                <span className="nav-icon">🚚</span>
+                <span>Proveedores</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/notes') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/notes')}
+              >
+                <span className="nav-icon">📝</span>
+                <span>Notas</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/staff') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/staff')}
+              >
+                <span className="nav-icon">👥</span>
+                <span>Personal</span>
+              </button>
+            </li>
+            <li>
+              <button
+                className={`nav-item ${isActive('/resto/shifts') ? 'active' : ''}`}
+                onClick={() => navigate('/resto/shifts')}
+              >
+                <span className="nav-icon">🗓️</span>
+                <span>Turnos</span>
               </button>
             </li>
           </ul>

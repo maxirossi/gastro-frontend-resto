@@ -1,6 +1,48 @@
 import { getRestaurantToken } from '../utils/auth';
 import type { PlaceResponse, PlaceUpdateRequest } from '../types/place';
 import type { PaymentLink, PaymentLinkCreateRequest, PaymentLinkUpdateRequest } from '../types/paymentLink';
+import type {
+  CashMovement,
+  CashMovementCreateRequest,
+  CashMovementUpdateRequest,
+  CashMovementListQuery,
+  CashMovementListResponse,
+  CashMovementSummary,
+  CashMovementSummaryQuery,
+} from '../types/cashMovement';
+import type {
+  RestaurantNote,
+  RestaurantNoteCreateRequest,
+  RestaurantNoteUpdateRequest,
+  RestaurantNoteListQuery,
+  RestaurantNoteListResponse,
+} from '../types/restaurantNote';
+import type {
+  RestaurantStaff,
+  RestaurantStaffCreateRequest,
+  RestaurantStaffUpdateRequest,
+  RestaurantStaffListQuery,
+  RestaurantStaffListResponse,
+} from '../types/restaurantStaff';
+import type {
+  Reservation,
+  CreateReservationRequest,
+  UpdateReservationRequest,
+  LinkPaymentRequest,
+  ReservationQuery,
+} from '../types/reservation';
+import type {
+  Shift,
+  CreateShiftRequest,
+  UpdateShiftRequest,
+  ShiftQuery,
+} from '../types/shift';
+import type {
+  Supplier,
+  CreateSupplierRequest,
+  UpdateSupplierRequest,
+  SupplierQuery,
+} from '../types/supplier';
 import { API_BASE_URL } from '../lib/api';
 
 export interface RestaurantLoginResponse {
@@ -484,6 +526,628 @@ export const deletePaymentLink = async (id: string): Promise<{ ok: boolean; erro
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
     throw new Error(error.error || 'Error al eliminar el link de pago');
+  }
+
+  return response.json();
+};
+
+// ========== CASH MOVEMENTS API ==========
+
+/**
+ * Obtiene la lista de movimientos de caja con filtros
+ */
+export const getCashMovements = async (query: CashMovementListQuery = {}): Promise<CashMovementListResponse> => {
+  const params = new URLSearchParams();
+  if (query.from) params.append('from', query.from);
+  if (query.to) params.append('to', query.to);
+  if (query.type) params.append('type', query.type);
+  if (query.payment_method) params.append('payment_method', query.payment_method);
+  if (query.q) params.append('q', query.q);
+  if (query.page) params.append('page', query.page.toString());
+  if (query.limit) params.append('limit', query.limit.toString());
+
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener movimientos de caja');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene un movimiento de caja por ID
+ */
+export const getCashMovement = async (id: string): Promise<CashMovement> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el movimiento');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea un nuevo movimiento de caja
+ */
+export const createCashMovement = async (data: CashMovementCreateRequest): Promise<CashMovement> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el movimiento');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza un movimiento de caja
+ */
+export const updateCashMovement = async (id: string, data: CashMovementUpdateRequest): Promise<CashMovement> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el movimiento');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina un movimiento de caja
+ */
+export const deleteCashMovement = async (id: string): Promise<{ ok: boolean; message?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el movimiento');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene el resumen de movimientos de caja
+ */
+export const getCashMovementSummary = async (query: CashMovementSummaryQuery = {}): Promise<CashMovementSummary> => {
+  const params = new URLSearchParams();
+  if (query.period) params.append('period', query.period);
+  if (query.from) params.append('from', query.from);
+  if (query.to) params.append('to', query.to);
+  if (query.tz) params.append('tz', query.tz);
+
+  const response = await authFetch(`${API_BASE_URL}/restaurant/cash-movements/summary?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el resumen');
+  }
+
+  return response.json();
+};
+
+// ========== RESTAURANT NOTES API ==========
+
+/**
+ * Obtiene la lista de notas con filtros
+ */
+export const getRestaurantNotes = async (query: RestaurantNoteListQuery = {}): Promise<RestaurantNoteListResponse> => {
+  const params = new URLSearchParams();
+  if (query.from) params.append('from', query.from);
+  if (query.to) params.append('to', query.to);
+  if (query.type) params.append('type', query.type);
+  if (query.q) params.append('q', query.q);
+  if (query.page) params.append('page', query.page.toString());
+  if (query.limit) params.append('limit', query.limit.toString());
+
+  const response = await authFetch(`${API_BASE_URL}/restaurant/notes?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener las notas');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene una nota por ID
+ */
+export const getRestaurantNote = async (id: string): Promise<RestaurantNote> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/notes/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener la nota');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea una nueva nota
+ */
+export const createRestaurantNote = async (data: RestaurantNoteCreateRequest): Promise<RestaurantNote> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/notes`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear la nota');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza una nota
+ */
+export const updateRestaurantNote = async (id: string, data: RestaurantNoteUpdateRequest): Promise<RestaurantNote> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/notes/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar la nota');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina una nota
+ */
+export const deleteRestaurantNote = async (id: string): Promise<{ ok: boolean; message?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/notes/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar la nota');
+  }
+
+  return response.json();
+};
+
+// ========== RESTAURANT STAFF API ==========
+
+/**
+ * Obtiene la lista de personal con filtros
+ */
+export const getRestaurantStaff = async (query: RestaurantStaffListQuery = {}): Promise<RestaurantStaffListResponse> => {
+  const params = new URLSearchParams();
+  if (query.q) params.append('q', query.q);
+  if (query.isActive !== undefined) params.append('isActive', query.isActive.toString());
+  if (query.page) params.append('page', query.page.toString());
+  if (query.limit) params.append('limit', query.limit.toString());
+
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene un miembro del personal por ID
+ */
+export const getRestaurantStaffMember = async (id: string): Promise<RestaurantStaff> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el miembro del personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea un nuevo miembro del personal
+ */
+export const createRestaurantStaff = async (data: RestaurantStaffCreateRequest): Promise<RestaurantStaff> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el miembro del personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza un miembro del personal
+ */
+export const updateRestaurantStaff = async (id: string, data: RestaurantStaffUpdateRequest): Promise<RestaurantStaff> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el miembro del personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Activa un miembro del personal
+ */
+export const activateRestaurantStaff = async (id: string): Promise<RestaurantStaff> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff/${id}/activate`, {
+    method: 'PATCH',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al activar el miembro del personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Desactiva un miembro del personal
+ */
+export const deactivateRestaurantStaff = async (id: string): Promise<RestaurantStaff> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff/${id}/deactivate`, {
+    method: 'PATCH',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al desactivar el miembro del personal');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina un miembro del personal
+ */
+export const deleteRestaurantStaff = async (id: string): Promise<{ ok: boolean; message?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/restaurant/staff/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el miembro del personal');
+  }
+
+  return response.json();
+};
+
+// ========== RESERVATIONS API ==========
+
+/**
+ * Obtiene la lista de reservas con filtros
+ */
+export const getReservations = async (query: ReservationQuery = {}): Promise<{ ok: boolean; data?: Reservation[]; error?: string }> => {
+  const params = new URLSearchParams();
+  if (query.from) params.append('from', query.from);
+  if (query.to) params.append('to', query.to);
+  if (query.status) params.append('status', query.status);
+  if (query.search) params.append('search', query.search);
+
+  const response = await authFetch(`${API_BASE_URL}/reservations?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener las reservas');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene una reserva por ID
+ */
+export const getReservation = async (id: string): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener la reserva');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea una nueva reserva
+ */
+export const createReservation = async (data: CreateReservationRequest): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear la reserva');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza una reserva
+ */
+export const updateReservation = async (id: string, data: UpdateReservationRequest): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar la reserva');
+  }
+
+  return response.json();
+};
+
+/**
+ * Vincula un payment link a una reserva
+ */
+export const linkPaymentToReservation = async (id: string, data: LinkPaymentRequest): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations/${id}/link-payment`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al vincular el pago');
+  }
+
+  return response.json();
+};
+
+/**
+ * Marca una reserva como pagada
+ */
+export const markReservationPaid = async (id: string): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations/${id}/mark-paid`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al marcar como pagada');
+  }
+
+  return response.json();
+};
+
+/**
+ * Cancela una reserva
+ */
+export const cancelReservation = async (id: string): Promise<{ ok: boolean; data?: Reservation; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/reservations/${id}/cancel`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al cancelar la reserva');
+  }
+
+  return response.json();
+};
+
+// ========== SHIFTS API ==========
+
+/**
+ * Obtiene la lista de turnos con filtros
+ */
+export const getShifts = async (query: ShiftQuery = {}): Promise<{ ok: boolean; data?: Shift[]; error?: string }> => {
+  const params = new URLSearchParams();
+  if (query.from) params.append('from', query.from);
+  if (query.to) params.append('to', query.to);
+  if (query.staff_member_id) params.append('staff_member_id', query.staff_member_id);
+  if (query.shift) params.append('shift', query.shift);
+  if (query.status) params.append('status', query.status);
+
+  const response = await authFetch(`${API_BASE_URL}/shifts?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener los turnos');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene un turno por ID
+ */
+export const getShift = async (id: string): Promise<{ ok: boolean; data?: Shift; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/shifts/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el turno');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea un nuevo turno
+ */
+export const createShift = async (data: CreateShiftRequest): Promise<{ ok: boolean; data?: Shift; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/shifts`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el turno');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza un turno
+ */
+export const updateShift = async (id: string, data: UpdateShiftRequest): Promise<{ ok: boolean; data?: Shift; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/shifts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el turno');
+  }
+
+  return response.json();
+};
+
+/**
+ * Elimina un turno
+ */
+export const deleteShift = async (id: string): Promise<{ ok: boolean; message?: string; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/shifts/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al eliminar el turno');
+  }
+
+  return response.json();
+};
+
+// ========== SUPPLIERS API ==========
+
+/**
+ * Obtiene la lista de proveedores con filtros
+ */
+export const getSuppliers = async (query: SupplierQuery = {}): Promise<{ ok: boolean; data?: Supplier[]; error?: string }> => {
+  const params = new URLSearchParams();
+  if (query.search) params.append('search', query.search);
+  if (query.category) params.append('category', query.category);
+  if (query.status) params.append('status', query.status);
+
+  const response = await authFetch(`${API_BASE_URL}/suppliers?${params.toString()}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener los proveedores');
+  }
+
+  return response.json();
+};
+
+/**
+ * Obtiene un proveedor por ID
+ */
+export const getSupplier = async (id: string): Promise<{ ok: boolean; data?: Supplier; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/suppliers/${id}`);
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al obtener el proveedor');
+  }
+
+  return response.json();
+};
+
+/**
+ * Crea un nuevo proveedor
+ */
+export const createSupplier = async (data: CreateSupplierRequest): Promise<{ ok: boolean; data?: Supplier; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/suppliers`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al crear el proveedor');
+  }
+
+  return response.json();
+};
+
+/**
+ * Actualiza un proveedor
+ */
+export const updateSupplier = async (id: string, data: UpdateSupplierRequest): Promise<{ ok: boolean; data?: Supplier; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/suppliers/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al actualizar el proveedor');
+  }
+
+  return response.json();
+};
+
+/**
+ * Activa un proveedor
+ */
+export const activateSupplier = async (id: string): Promise<{ ok: boolean; data?: Supplier; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/suppliers/${id}/activate`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al activar el proveedor');
+  }
+
+  return response.json();
+};
+
+/**
+ * Desactiva un proveedor
+ */
+export const deactivateSupplier = async (id: string): Promise<{ ok: boolean; data?: Supplier; error?: string }> => {
+  const response = await authFetch(`${API_BASE_URL}/suppliers/${id}/deactivate`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Error de conexión' }));
+    throw new Error(error.error || 'Error al desactivar el proveedor');
   }
 
   return response.json();
